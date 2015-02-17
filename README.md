@@ -15,7 +15,7 @@ Use by creating a `Lob` struct with `NewLob`, and calling the methods it offers.
 
 ```go
 // fill in your API key and user agent here
-lob := lob.NewLob(lob.BaseAPI, apiKey, userAgent)
+l := lob.NewLob(lob.BaseAPI, apiKey, userAgent)
 
 testAddress := &Address{
   Name:           "Lobster Test",
@@ -28,7 +28,7 @@ testAddress := &Address{
   AddressCountry: "US",
 }
 
-verify, err := lob.VerifyAddress(testAddress)
+verify, err := l.VerifyAddress(testAddress)
 // ...
 ```
 
