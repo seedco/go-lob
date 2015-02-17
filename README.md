@@ -32,6 +32,8 @@ verify, err := l.VerifyAddress(testAddress)
 // ...
 ```
 
+You can see the full docs [here](https://godoc.org/github.com/seedco/go-lob).
+
 ## Test
 
 You can run the tests if you set the `TEST_LOB_API_KEY` environment variable, i.e.,
