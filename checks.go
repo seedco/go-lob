@@ -4,7 +4,7 @@ import "strconv"
 
 // Check represents a printed check in Lob's system.
 type Check struct {
-	Amount               string              `json:"amount"`
+	Amount               float64             `json:"amount"`
 	BankAccount          *BankAccount        `json:"bank_account"`
 	CheckNumber          int                 `json:"check_number"`
 	DateCreated          string              `json:"date_created"`
@@ -15,7 +15,7 @@ type Check struct {
 	Message              string              `json:"message"`
 	Name                 string              `json:"name"`
 	Object               string              `json:"object"`
-	Price                string              `json:"price"`
+	Price                float64             `json:"price"`
 	Status               string              `json:"status"`
 	Thumbnails           []map[string]string `json:"thumbnails"`
 	To                   *Address            `json:"to"`
