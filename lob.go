@@ -12,7 +12,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/op/go-logging"
+	"github.com/seedco/go-logging"
 )
 
 var log = logging.MustGetLogger("lob")
@@ -22,9 +22,9 @@ func logStackTrace(err error) {
 	buf := make([]byte, 0, 16384)
 	n := runtime.Stack(buf, false)
 	if err != nil {
-		log.Error("Non-nil error %s; stack trace %s", err.Error(), buf[:n])
+		log.Errorf("Non-nil error %s; stack trace %s", err.Error(), buf[:n])
 	} else {
-		log.Error("Nil error; stack trace %s", buf[:n])
+		log.Errorf("Nil error; stack trace %s", buf[:n])
 	}
 }
 
@@ -124,7 +124,7 @@ func json2form(v interface{}) map[string]string {
 			}
 		default:
 			// ignore
-			log.Debug("Unknown field type: " + value.Field(i).Type().String())
+			log.Debugf("Unknown field type: " + value.Field(i).Type().String())
 		}
 	}
 	return params
@@ -133,7 +133,7 @@ func json2form(v interface{}) map[string]string {
 // Get performs a GET request to the Lob API.
 func (lob *Lob) Get(endpoint string, params map[string]string, returnValue interface{}) error {
 	fullURL := lob.BaseAPI + endpoint + queryParams(params)
-	log.Debug("Lob GET %s", fullURL)
+	log.Debugf("Lob GET %s", fullURL)
 	req, err := http.NewRequest("GET", fullURL, nil)
 	if err != nil {
 		logStackTrace(err)
@@ -171,7 +171,7 @@ func (lob *Lob) Get(endpoint string, params map[string]string, returnValue inter
 // Post performs a POST request to the Lob API.
 func (lob *Lob) Post(endpoint string, params map[string]string, returnValue interface{}) error {
 	fullURL := lob.BaseAPI + endpoint
-	log.Debug("Lob POST %s", fullURL)
+	log.Debugf("Lob POST %s", fullURL)
 
 	var body io.Reader
 	if params != nil {
@@ -224,7 +224,7 @@ func (lob *Lob) Post(endpoint string, params map[string]string, returnValue inte
 // Delete performs a DELETE request to the Lob API.
 func (lob *Lob) Delete(endpoint string, returnValue interface{}) error {
 	fullURL := lob.BaseAPI + endpoint
-	log.Debug("Lob DELETE %s", fullURL)
+	log.Debugf("Lob DELETE %s", fullURL)
 
 	req, err := http.NewRequest("DELETE", fullURL, nil)
 	if err != nil {
