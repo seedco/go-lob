@@ -10,14 +10,18 @@ const testUserAgent = "Test/1.0"
 var testAPIKey = os.Getenv("TEST_LOB_API_KEY")
 
 var testAddress = &Address{
-	Name:           "Lobster Test",
-	Email:          "lobtest@example.com",
-	Phone:          "5555555555",
+	Name:           nullString("Lobster Test"),
+	Email:          nullString("lobtest@example.com"),
+	Phone:          nullString("5555555555"),
 	AddressLine1:   "1005 W Burnside St", // Powell's City of Books, the best book store in the world.
-	AddressCity:    "Portland",
-	AddressState:   "OR",
-	AddressZip:     "97209",
-	AddressCountry: "US",
+	AddressCity:    nullString("Portland"),
+	AddressState:   nullString("OR"),
+	AddressZip:     nullString("97209"),
+	AddressCountry: nullString("US"),
+}
+
+func nullString(s string) *string {
+	return &s
 }
 
 func TestLobAPI(t *testing.T) {
@@ -61,11 +65,9 @@ func TestBankAccounts(t *testing.T) {
 	}
 
 	bankAccount, err := lob.CreateBankAccount(&CreateBankAccountRequest{
-		RoutingNumber:    "123123123",
-		AccountNumber:    "1234",
-		BankAddressID:    address.ID,
-		AccountAddressID: address.ID,
-		Signatory:        "Lobster Test",
+		RoutingNumber: "255077370",
+		AccountNumber: "1234",
+		Signatory:     "Lobster Test",
 	})
 
 	if err != nil {
@@ -105,11 +107,9 @@ func TestChecks(t *testing.T) {
 	}
 
 	bankAccount, err := lob.CreateBankAccount(&CreateBankAccountRequest{
-		RoutingNumber:    "123123123",
-		AccountNumber:    "1234",
-		BankAddressID:    address.ID,
-		AccountAddressID: address.ID,
-		Signatory:        "Lobster Test",
+		RoutingNumber: "255077370",
+		AccountNumber: "1234",
+		Signatory:     "Lobster Test",
 	})
 
 	if err != nil {
@@ -117,14 +117,13 @@ func TestChecks(t *testing.T) {
 	}
 
 	check, err := lob.CreateCheck(&CreateCheckRequest{
-		Name:          "Lobster Test",
-		CheckNumber:   "12345",
+		CheckNumber:   nullString("12345"),
 		BankAccountID: bankAccount.ID,
+		FromAddressID: address.ID,
 		ToAddressID:   address.ID,
-		Amount:        "1.23",
-		Message:       "Some message",
-		Memo:          "A memo",
-		Logo:          "",
+		Amount:        987.65,
+		Message:       nullString("Some message"),
+		Memo:          nullString("A memo"),
 	})
 
 	if err != nil {

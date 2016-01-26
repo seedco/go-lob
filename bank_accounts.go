@@ -4,27 +4,27 @@ import "strconv"
 
 // BankAccount represents a bank account in lob's system.
 type BankAccount struct {
-	AccountAddress *Address `json:"account_address"`
-	AccountNumber  string   `json:"account_number"`
-	BankAddress    *Address `json:"bank_address"`
-	BankCode       string   `json:"bank_code"`
-	DateCreated    string   `json:"date_created"`
-	DateModified   string   `json:"date_modified"`
-	ID             string   `json:"id"`
-	Name           string   `json:"name"`
-	Object         string   `json:"object"`
-	RoutingNumber  string   `json:"routing_number"`
-	Signatory      string   `json:"signatory"`
+	AccountNumber string            `json:"account_number"`
+	BankName      string            `json:"bank_name"`
+	DateCreated   string            `json:"date_created"`
+	DateModified  string            `json:"date_modified"`
+	Description   *string           `json:"description"`
+	ID            string            `json:"id"`
+	Metadata      map[string]string `json:"metadata"`
+	Object        string            `json:"object"`
+	RoutingNumber string            `json:"routing_number"`
+	Signatory     string            `json:"signatory"`
+	Verified      bool              `json:"verified"`
 }
 
 // CreateBankAccountRequest request has the parameters needed to submit a bank account creation
 // request to Lob.
 type CreateBankAccountRequest struct {
-	RoutingNumber    string `json:"routing_number"`
-	AccountNumber    string `json:"account_number"`
-	BankAddressID    string `json:"bank_address"`
-	AccountAddressID string `json:"account_address"`
-	Signatory        string `json:"signatory"`
+	Description   *string           `json:"description"`
+	RoutingNumber string            `json:"routing_number"`
+	AccountNumber string            `json:"account_number"`
+	Signatory     string            `json:"signatory"`
+	Metadata      map[string]string `json:"metadata"`
 }
 
 // CreateBankAccount creates a new bank account in Lob's system.
@@ -64,7 +64,7 @@ func (lob *Lob) ListBankAccounts(count int, offset int) (*ListBankAccountsRespon
 	resp := new(ListBankAccountsResponse)
 	return resp, Metrics.ListBankAccounts.Call(func() error {
 		return lob.Get("bank_accounts", map[string]string{
-			"count":  strconv.Itoa(count),
+			"limit":  strconv.Itoa(count),
 			"offset": strconv.Itoa(offset),
 		}, resp)
 	})

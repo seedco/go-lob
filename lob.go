@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"reflect"
 	"runtime"
+	"strconv"
 	"strings"
 
 	"github.com/seedco/go-logging"
@@ -38,7 +39,7 @@ type Lob struct {
 // Base URL and API version for Lob.
 const (
 	BaseAPI    = "https://api.lob.com/v1/"
-	APIVersion = "2014-12-18"
+	APIVersion = "2016-01-19"
 )
 
 // MetricsSet is the bundle of metrics associated
@@ -113,18 +114,40 @@ func json2form(v interface{}) map[string]string {
 		if fv == nil {
 			continue
 		}
-		switch fv.(type) {
-		case string:
-			if fv.(string) != "" {
-				params[name] = fv.(string)
+		switch x := fv.(type) {
+		case *string:
+			if x != nil {
+				params[name] = *x
 			}
+		case string:
+			if x != "" {
+				params[name] = x
+			}
+		case int:
+			if x != 0 {
+				params[name] = strconv.Itoa(x)
+			}
+		case *bool:
+			if x != nil {
+				params[name] = fmt.Sprintf("%v", *x)
+			}
+		case int64:
+			if x != 0 {
+				params[name] = strconv.FormatInt(x, 10)
+			}
+		case float64:
+			params[name] = fmt.Sprintf("%.2f", x)
 		case []string:
-			if len(fv.([]string)) > 0 {
-				params[name] = strings.Join(fv.([]string), " ")
+			if len(x) > 0 {
+				params[name] = strings.Join(x, " ")
+			}
+		case map[string]string:
+			for mapkey, mapvalue := range x {
+				params[name+"["+mapkey+"]"] = mapvalue
 			}
 		default:
 			// ignore
-			log.Debugf("Unknown field type: " + value.Field(i).Type().String())
+			panic(fmt.Errorf("Unknown field type: " + value.Field(i).Type().String()))
 		}
 	}
 	return params
