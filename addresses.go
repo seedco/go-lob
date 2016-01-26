@@ -4,20 +4,23 @@ import "strconv"
 
 // Address represents an address stored in the Lob's system.
 type Address struct {
-	AddressCity    string `json:"address_city"`
-	AddressCountry string `json:"address_country"`
-	AddressLine1   string `json:"address_line1"`
-	AddressLine2   string `json:"address_line2"`
-	AddressState   string `json:"address_state"`
-	AddressZip     string `json:"address_zip"`
-	DateCreated    string `json:"date_created"`
-	DateModified   string `json:"date_modified"`
-	Email          string `json:"email"`
-	ID             string `json:"id"`
-	Name           string `json:"name"`
-	Object         string `json:"object"`
-	Phone          string `json:"phone"`
-	Deleted        int    `json:"deleted"`
+	AddressCity    *string           `json:"address_city"`
+	AddressCountry *string           `json:"address_country"`
+	AddressLine1   string            `json:"address_line1"`
+	AddressLine2   *string           `json:"address_line2"`
+	AddressState   *string           `json:"address_state"`
+	AddressZip     *string           `json:"address_zip"`
+	Company        *string           `json:"company"`
+	DateCreated    string            `json:"date_created"`
+	DateModified   string            `json:"date_modified"`
+	Deleted        *bool             `json:"deleted"`
+	Description    *string           `json:"description"`
+	Email          *string           `json:"email"`
+	ID             string            `json:"id"`
+	Metadata       map[string]string `json:"metadata"`
+	Name           *string           `json:"name"`
+	Object         string            `json:"object"`
+	Phone          *string           `json:"phone"`
 }
 
 // CreateAddress creates an address in Lob's system.
@@ -70,7 +73,7 @@ func (lob *Lob) ListAddresses(count int, offset int) (*ListAddressesResponse, er
 	resp := new(ListAddressesResponse)
 	return resp, Metrics.ListAddresses.Call(func() error {
 		return lob.Get("addresses/", map[string]string{
-			"count":  strconv.Itoa(count),
+			"limit":  strconv.Itoa(count),
 			"offset": strconv.Itoa(offset),
 		}, resp)
 	})
@@ -78,12 +81,13 @@ func (lob *Lob) ListAddresses(count int, offset int) (*ListAddressesResponse, er
 
 // AddressVerificationRequest validates the given subset of info from an address.
 type AddressVerificationRequest struct {
-	AddressCity    string `json:"address_city"`
-	AddressCountry string `json:"address_country"`
-	AddressLine1   string `json:"address_line1"`
-	AddressLine2   string `json:"address_line2"`
-	AddressState   string `json:"address_state"`
-	AddressZip     string `json:"address_zip"`
+	AddressCity    *string `json:"address_city"`
+	AddressCountry *string `json:"address_country"`
+	AddressLine1   *string `json:"address_line1"`
+	AddressLine2   *string `json:"address_line2"`
+	AddressState   *string `json:"address_state"`
+	AddressZip     *string `json:"address_zip"`
+	Name           *string `json:"name"`
 }
 
 // AddressVerificationResponse gives the response from attempting to verify an address.
@@ -103,7 +107,7 @@ func (lob *Lob) VerifyAddress(address *Address) (*AddressVerificationResponse, e
 	req := AddressVerificationRequest{
 		AddressCity:    address.AddressCity,
 		AddressCountry: address.AddressCountry,
-		AddressLine1:   address.AddressLine1,
+		AddressLine1:   &address.AddressLine1,
 		AddressLine2:   address.AddressLine2,
 		AddressState:   address.AddressState,
 		AddressZip:     address.AddressZip,
