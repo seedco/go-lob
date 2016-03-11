@@ -13,7 +13,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/seedco/go-logging"
+	"github.com/op/go-logging"
 )
 
 var log = logging.MustGetLogger("lob")
