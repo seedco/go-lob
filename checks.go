@@ -13,6 +13,7 @@ type Check struct {
 	DateModified         string              `json:"date_modified"`
 	Description          string              `json:"description"`
 	ExpectedDeliveryDate string              `json:"expected_delivery_date"`
+	SendDate             string              `json:"send_date"`
 	From                 *Address            `json:"from"`
 	ID                   string              `json:"id"`
 	Logo                 *string             `json:"logo"`
