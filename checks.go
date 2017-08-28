@@ -68,12 +68,22 @@ func (lob *Lob) CreateCheck(req *CreateCheckRequest) (*Check, error) {
 	})
 }
 
+type CancelCheckResponse struct {
+	ID      string `json:"id"`
+	Deleted bool   `json:"deleted"`
+}
+
 // GetCheck gets information about a particulr check.
 func (lob *Lob) GetCheck(id string) (*Check, error) {
 	resp := new(Check)
 	return resp, Metrics.GetCheck.Call(func() error {
 		return lob.Get("checks/"+id, nil, resp)
 	})
+}
+
+func (lob *Lob) CancelCheck(id string) error {
+	var resp CancelCheckResponse
+	return lob.Delete("checks/"+id, nil, &resp)
 }
 
 // ListChecksResponse details all of the checks we've ever mailed and printed.
