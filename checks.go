@@ -82,9 +82,12 @@ func (lob *Lob) GetCheck(id string) (*Check, error) {
 	})
 }
 
-func (lob *Lob) CancelCheck(id string) error {
+func (lob *Lob) CancelCheck(id string) (*CancelCheckResponse, error) {
 	var resp CancelCheckResponse
-	return lob.Delete("checks/"+id, nil, &resp)
+	if err := lob.Delete("checks/"+id, &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
 }
 
 // ListChecksResponse details all of the checks we've ever mailed and printed.
