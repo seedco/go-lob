@@ -8,15 +8,15 @@ import (
 	"github.com/pborman/uuid"
 )
 
-type testLob struct {
+type fakeLob struct {
 	checks       map[string]*Check
 	addresses    map[string]*Address
 	objectLists  map[string]*NamedObjectList
 	bankAccounts map[string]*BankAccount
 }
 
-func NewTestLob() *testLob {
-	return &testLob{
+func NewFakeLob() *fakeLob {
+	return &fakeLob{
 		checks:       make(map[string]*Check),
 		addresses:    make(map[string]*Address),
 		objectLists:  make(map[string]*NamedObjectList),
@@ -24,32 +24,32 @@ func NewTestLob() *testLob {
 	}
 }
 
-func (t *testLob) CreateCheck(request *CreateCheckRequest) (*Check, error) {
+func (t *fakeLob) CreateCheck(request *CreateCheckRequest) (*Check, error) {
+
+	bankAccount, ok := t.bankAccounts[request.BankAccountID]
+	if !ok {
+		return nil, errors.New("bank account not found")
+	}
+
+	address, ok := t.addresses[request.ToAddressID]
+	if !ok {
+		return nil, errors.New("address not found")
+	}
 
 	check := &Check{
-		ID:     uuid.New(),
-		Amount: request.Amount,
-		BankAccount: &BankAccount{
-			AccountNumber: "123456789",
-			BankName:      "Fake Bank",
-			DateCreated:   time.Now().Format("1/2/2006"),
-			DateModified:  time.Now().Format("1/2/2006"),
-			ID:            "1",
-			Metadata:      nil,
-			Object:        "",
-			RoutingNumber: "000000000",
-			Signatory:     "",
-			Verified:      true,
-		},
+		ID:                   uuid.New(),
+		Amount:               request.Amount,
+		BankAccount:          bankAccount,
 		CheckNumber:          rand.Int(),
 		ExpectedDeliveryDate: time.Now().Add(3 * 24 * time.Hour).Format("1/2/2006"),
 		SendDate:             time.Now().Add(1 * 24 * time.Hour).Format("1/2/2006"),
+		To:                   address,
 	}
 	t.checks[check.ID] = check
 	return check, nil
 }
 
-func (t *testLob) GetCheck(id string) (*Check, error) {
+func (t *fakeLob) GetCheck(id string) (*Check, error) {
 	check, ok := t.checks[id]
 	if !ok {
 		return nil, errors.New("no check found")
@@ -57,7 +57,7 @@ func (t *testLob) GetCheck(id string) (*Check, error) {
 	return check, nil
 }
 
-func (t *testLob) CancelCheck(id string) (*CancelCheckResponse, error) {
+func (t *fakeLob) CancelCheck(id string) (*CancelCheckResponse, error) {
 	delete(t.checks, id)
 	return &CancelCheckResponse{
 		ID:      id,
@@ -65,7 +65,7 @@ func (t *testLob) CancelCheck(id string) (*CancelCheckResponse, error) {
 	}, nil
 }
 
-func (t *testLob) ListChecks(count, offset int) (*ListChecksResponse, error) {
+func (t *fakeLob) ListChecks(count, offset int) (*ListChecksResponse, error) {
 	if count <= 0 {
 		count = 10
 	}
@@ -87,7 +87,7 @@ func (t *testLob) ListChecks(count, offset int) (*ListChecksResponse, error) {
 
 // Addresses
 
-func (t *testLob) CreateAddress(address *Address) (*Address, error) {
+func (t *fakeLob) CreateAddress(address *Address) (*Address, error) {
 	if address.ID == "" {
 		address.ID = uuid.New()
 	}
@@ -95,7 +95,7 @@ func (t *testLob) CreateAddress(address *Address) (*Address, error) {
 	return address, nil
 }
 
-func (t *testLob) GetAddress(id string) (*Address, error) {
+func (t *fakeLob) GetAddress(id string) (*Address, error) {
 	address, ok := t.addresses[id]
 	if !ok {
 		return nil, errors.New("address not found")
@@ -103,12 +103,12 @@ func (t *testLob) GetAddress(id string) (*Address, error) {
 	return address, nil
 }
 
-func (t *testLob) DeleteAddress(id string) error {
+func (t *fakeLob) DeleteAddress(id string) error {
 	delete(t.addresses, id)
 	return nil
 }
 
-func (t *testLob) ListAddresses(count, offset int) (*ListAddressesResponse, error) {
+func (t *fakeLob) ListAddresses(count, offset int) (*ListAddressesResponse, error) {
 	if count <= 0 {
 		count = 10
 	}
@@ -128,7 +128,7 @@ func (t *testLob) ListAddresses(count, offset int) (*ListAddressesResponse, erro
 	return resp, nil
 }
 
-func (t *testLob) VerifyAddress(address *Address) (*AddressVerificationResponse, error) {
+func (t *fakeLob) VerifyAddress(address *Address) (*AddressVerificationResponse, error) {
 	resp := new(AddressVerificationResponse)
 
 	for _, a := range t.addresses {
@@ -146,32 +146,32 @@ func (t *testLob) VerifyAddress(address *Address) (*AddressVerificationResponse,
 	return resp, nil
 }
 
-func (t *testLob) GetStates() (*NamedObjectList, error) {
+func (t *fakeLob) GetStates() (*NamedObjectList, error) {
 	return &NamedObjectList{}, nil
 }
 
-func (t *testLob) GetCountries() (*NamedObjectList, error) {
+func (t *fakeLob) GetCountries() (*NamedObjectList, error) {
 	return &NamedObjectList{}, nil
 }
 
-func (t *testLob) CreateBankAccount(request *CreateBankAccountRequest) (*BankAccount, error) {
+func (t *fakeLob) CreateBankAccount(request *CreateBankAccountRequest) (*BankAccount, error) {
 	bankAccount := &BankAccount{
-		AccountNumber: "123456789",
+		AccountNumber: request.AccountNumber,
 		BankName:      "Fake Bank",
 		DateCreated:   time.Now().Format("1/2/2006"),
 		DateModified:  time.Now().Format("1/2/2006"),
 		ID:            uuid.New(),
-		Metadata:      nil,
+		Metadata:      request.Metadata,
 		Object:        "",
-		RoutingNumber: "000000000",
-		Signatory:     "",
+		RoutingNumber: request.RoutingNumber,
+		Signatory:     request.Signatory,
 		Verified:      true,
 	}
 	t.bankAccounts[bankAccount.ID] = bankAccount
 	return bankAccount, nil
 }
 
-func (t *testLob) GetBankAccount(id string) (*BankAccount, error) {
+func (t *fakeLob) GetBankAccount(id string) (*BankAccount, error) {
 	bankAccount, ok := t.bankAccounts[id]
 	if !ok {
 		return nil, errors.New("bank account not found")
@@ -179,7 +179,7 @@ func (t *testLob) GetBankAccount(id string) (*BankAccount, error) {
 	return bankAccount, nil
 }
 
-func (t *testLob) ListBankAccounts(count, offset int) (*ListBankAccountsResponse, error) {
+func (t *fakeLob) ListBankAccounts(count, offset int) (*ListBankAccountsResponse, error) {
 	if count <= 0 {
 		count = 10
 	}
