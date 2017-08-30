@@ -15,17 +15,19 @@ type NamedObject struct {
 }
 
 // GetStates returns a list of US States that Lob recognizes.
-func (lob *Lob) GetStates() (*NamedObjectList, error) {
+func (l *lob) GetStates() (*NamedObjectList, error) {
 	resp := new(NamedObjectList)
-	return resp, Metrics.GetStates.Call(func() error {
-		return lob.Get("states/", nil, resp)
-	})
+	if err := l.get("states/", nil, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
 
 // GetCountries returns a list of countries that Lob recognizes.
-func (lob *Lob) GetCountries() (*NamedObjectList, error) {
+func (l *lob) GetCountries() (*NamedObjectList, error) {
 	resp := new(NamedObjectList)
-	return resp, Metrics.GetCountries.Call(func() error {
-		return lob.Get("countries/", nil, resp)
-	})
+	if err := l.get("countries/", nil, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
 }

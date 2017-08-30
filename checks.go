@@ -39,7 +39,7 @@ type Tracking struct {
 	TrackingNumber string        `json:"tracking_number"`
 }
 
-// Mail types that Lob supports.
+// Mail types that lob supports.
 const (
 	MailTypeUspsFirstClass = "usps_first_class"
 	MailTypeUpsNextDayAir  = "ups_next_day_air"
@@ -62,11 +62,12 @@ type CreateCheckRequest struct {
 }
 
 // CreateCheck requests for a new check to be printed and mailed.
-func (lob *Lob) CreateCheck(req *CreateCheckRequest) (*Check, error) {
+func (lob *lob) CreateCheck(req *CreateCheckRequest) (*Check, error) {
 	resp := new(Check)
-	return resp, Metrics.CreateCheck.Call(func() error {
-		return lob.Post("checks/", json2form(*req), resp)
-	})
+	if err := lob.post("checks/", json2form(*req), resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
 
 type CancelCheckResponse struct {
@@ -75,19 +76,20 @@ type CancelCheckResponse struct {
 }
 
 // GetCheck gets information about a particulr check.
-func (lob *Lob) GetCheck(id string) (*Check, error) {
+func (lob *lob) GetCheck(id string) (*Check, error) {
 	resp := new(Check)
-	return resp, Metrics.GetCheck.Call(func() error {
-		return lob.Get("checks/"+id, nil, resp)
-	})
-}
-
-func (lob *Lob) CancelCheck(id string) (*CancelCheckResponse, error) {
-	var resp CancelCheckResponse
-	if err := lob.Delete("checks/"+id, &resp); err != nil {
+	if err := lob.get("checks/"+id, nil, resp); err != nil {
 		return nil, err
 	}
-	return &resp, nil
+	return resp, nil
+}
+
+func (lob *lob) CancelCheck(id string) (*CancelCheckResponse, error) {
+	resp := new(CancelCheckResponse)
+	if err := lob.delete("checks/"+id, &resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
 
 // ListChecksResponse details all of the checks we've ever mailed and printed.
@@ -100,7 +102,7 @@ type ListChecksResponse struct {
 }
 
 // ListChecks retrieves information on all checks we've ever made, in reverse chrono order.
-func (lob *Lob) ListChecks(count, offset int) (*ListChecksResponse, error) {
+func (lob *lob) ListChecks(count, offset int) (*ListChecksResponse, error) {
 	if count <= 0 {
 		count = 10
 	}
@@ -108,10 +110,11 @@ func (lob *Lob) ListChecks(count, offset int) (*ListChecksResponse, error) {
 		offset = 0
 	}
 	resp := new(ListChecksResponse)
-	return resp, Metrics.ListChecks.Call(func() error {
-		return lob.Get("checks", map[string]string{
-			"limit":  strconv.Itoa(count),
-			"offset": strconv.Itoa(offset),
-		}, resp)
-	})
+	if err := lob.get("checks", map[string]string{
+		"limit":  strconv.Itoa(count),
+		"offset": strconv.Itoa(offset),
+	}, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
 }

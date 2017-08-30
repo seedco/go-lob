@@ -29,8 +29,29 @@ func logStackTrace(err error) {
 	}
 }
 
+type Lob interface {
+	// Checks
+	CreateCheck(*CreateCheckRequest) (*Check, error)
+	GetCheck(string) (*Check, error)
+	CancelCheck(string) (*CancelCheckResponse, error)
+	ListChecks(int, int) (*ListChecksResponse, error)
+	// Addresses
+	CreateAddress(*Address) (*Address, error)
+	GetAddress(string) (*Address, error)
+	DeleteAddress(string) (string, error)
+	ListAddresses(int, int) (*ListAddressesResponse, error)
+	VerifyAddress(*Address) (*AddressVerificationResponse, error)
+	// NamedObject
+	GetStates() (*NamedObjectList, error)
+	GetCountries() (*NamedObjectList, error)
+	// Bank Accounts
+	CreateBankAccount(*CreateBankAccountRequest) (*BankAccount, error)
+	GetBankAccount(string) (*BankAccount, error)
+	ListBankAccounts(int, int) (*ListBankAccountsResponse, error)
+}
+
 // Lob represents information on how to connect to the lob.com API.
-type Lob struct {
+type lob struct {
 	BaseAPI   string
 	APIKey    string
 	UserAgent string
@@ -42,49 +63,9 @@ const (
 	APIVersion = "2016-01-19"
 )
 
-// MetricsSet is the bundle of metrics associated
-// with each Lob method.
-type MetricsSet struct {
-	CreateCheck       *MetricsBundle
-	GetCheck          *MetricsBundle
-	ListChecks        *MetricsBundle
-	CreateBankAccount *MetricsBundle
-	GetBankAccount    *MetricsBundle
-	ListBankAccounts  *MetricsBundle
-	VerifyAddress     *MetricsBundle
-	CreateAddress     *MetricsBundle
-	GetAddress        *MetricsBundle
-	DeleteAddress     *MetricsBundle
-	ListAddresses     *MetricsBundle
-	GetStates         *MetricsBundle
-	GetCountries      *MetricsBundle
-}
-
-// Metrics is the set of metrics for this API.
-// It is shared across all instances.
-var Metrics *MetricsSet
-
-func init() {
-	Metrics = &MetricsSet{
-		CreateCheck:       NewMetricsBundle("check_create"),
-		GetCheck:          NewMetricsBundle("check_get"),
-		ListChecks:        NewMetricsBundle("check_list"),
-		CreateBankAccount: NewMetricsBundle("bank_account_create"),
-		GetBankAccount:    NewMetricsBundle("bank_account_get"),
-		ListBankAccounts:  NewMetricsBundle("bank_account_list"),
-		VerifyAddress:     NewMetricsBundle("address_verify"),
-		CreateAddress:     NewMetricsBundle("address_create"),
-		GetAddress:        NewMetricsBundle("address_get"),
-		DeleteAddress:     NewMetricsBundle("address_delete"),
-		ListAddresses:     NewMetricsBundle("address_list"),
-		GetStates:         NewMetricsBundle("states_list"),
-		GetCountries:      NewMetricsBundle("countries_list"),
-	}
-}
-
 // NewLob creates an object that can be used to connect to the lob.com API.
-func NewLob(baseAPI, apiKey, userAgent string) *Lob {
-	return &Lob{
+func NewLob(baseAPI, apiKey, userAgent string) *lob {
+	return &lob{
 		BaseAPI:   baseAPI,
 		APIKey:    apiKey,
 		UserAgent: userAgent,
@@ -153,9 +134,9 @@ func json2form(v interface{}) map[string]string {
 	return params
 }
 
-// Get performs a GET request to the Lob API.
-func (lob *Lob) Get(endpoint string, params map[string]string, returnValue interface{}) error {
-	fullURL := lob.BaseAPI + endpoint + queryParams(params)
+// Get performs a GET request to the lob API.
+func (l *lob) get(endpoint string, params map[string]string, returnValue interface{}) error {
+	fullURL := l.BaseAPI + endpoint + queryParams(params)
 	log.Debugf("Lob GET %s", fullURL)
 	req, err := http.NewRequest("GET", fullURL, nil)
 	if err != nil {
@@ -163,10 +144,10 @@ func (lob *Lob) Get(endpoint string, params map[string]string, returnValue inter
 		return err
 	}
 
-	req.SetBasicAuth(lob.APIKey, "")
+	req.SetBasicAuth(l.APIKey, "")
 	req.Header.Add("Lob-Version", APIVersion)
 	req.Header.Add("Accept", "application/json")
-	req.Header.Add("User-Agent", lob.UserAgent)
+	req.Header.Add("User-Agent", l.UserAgent)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -192,8 +173,8 @@ func (lob *Lob) Get(endpoint string, params map[string]string, returnValue inter
 }
 
 // Post performs a POST request to the Lob API.
-func (lob *Lob) Post(endpoint string, params map[string]string, returnValue interface{}) error {
-	fullURL := lob.BaseAPI + endpoint
+func (l *lob) post(endpoint string, params map[string]string, returnValue interface{}) error {
+	fullURL := l.BaseAPI + endpoint
 	log.Debugf("Lob POST %s", fullURL)
 
 	var body io.Reader
@@ -216,10 +197,10 @@ func (lob *Lob) Post(endpoint string, params map[string]string, returnValue inte
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	}
 
-	req.SetBasicAuth(lob.APIKey, "")
+	req.SetBasicAuth(l.APIKey, "")
 	req.Header.Add("Lob-Version", APIVersion)
 	req.Header.Add("Accept", "application/json")
-	req.Header.Add("User-Agent", lob.UserAgent)
+	req.Header.Add("User-Agent", l.UserAgent)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -245,8 +226,8 @@ func (lob *Lob) Post(endpoint string, params map[string]string, returnValue inte
 }
 
 // Delete performs a DELETE request to the Lob API.
-func (lob *Lob) Delete(endpoint string, returnValue interface{}) error {
-	fullURL := lob.BaseAPI + endpoint
+func (l *lob) delete(endpoint string, returnValue interface{}) error {
+	fullURL := l.BaseAPI + endpoint
 	log.Debugf("Lob DELETE %s", fullURL)
 
 	req, err := http.NewRequest("DELETE", fullURL, nil)
@@ -255,10 +236,10 @@ func (lob *Lob) Delete(endpoint string, returnValue interface{}) error {
 		return err
 	}
 
-	req.SetBasicAuth(lob.APIKey, "")
+	req.SetBasicAuth(l.APIKey, "")
 	req.Header.Add("Lob-Version", APIVersion)
 	req.Header.Add("Accept", "application/json")
-	req.Header.Add("User-Agent", lob.UserAgent)
+	req.Header.Add("User-Agent", l.UserAgent)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

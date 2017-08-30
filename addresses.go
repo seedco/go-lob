@@ -24,19 +24,21 @@ type Address struct {
 }
 
 // CreateAddress creates an address in Lob's system.
-func (lob *Lob) CreateAddress(address *Address) (*Address, error) {
+func (lob *lob) CreateAddress(address *Address) (*Address, error) {
 	resp := new(Address)
-	return resp, Metrics.CreateAddress.Call(func() error {
-		return lob.Post("addresses", json2form(*address), resp)
-	})
+	if err := lob.post("addresses", json2form(*address), resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
 
 // GetAddress retrieves an address with the given id.
-func (lob *Lob) GetAddress(id string) (*Address, error) {
+func (lob *lob) GetAddress(id string) (*Address, error) {
 	resp := new(Address)
-	return resp, Metrics.GetAddress.Call(func() error {
-		return lob.Get("addresses/"+id, nil, resp)
-	})
+	if err := lob.get("addresses/"+id, nil, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
 
 type message struct {
@@ -44,12 +46,13 @@ type message struct {
 }
 
 // DeleteAddress deletes the given address from Lob's system.
-func (lob *Lob) DeleteAddress(id string) (string, error) {
+func (lob *lob) DeleteAddress(id string) (string, error) {
 	resp := new(message)
-	err := Metrics.DeleteAddress.Call(func() error {
-		return lob.Delete("addresses/"+id, resp)
-	})
-	return resp.Message, err
+
+	if err := lob.delete("addresses/"+id, resp); err != nil {
+		return "", err
+	}
+	return resp.Message, nil
 }
 
 // ListAddressesResponse gives the results for listing all addresses for our account.
@@ -62,7 +65,7 @@ type ListAddressesResponse struct {
 }
 
 // ListAddresses lists all addresses on this account, paginated.
-func (lob *Lob) ListAddresses(count int, offset int) (*ListAddressesResponse, error) {
+func (lob *lob) ListAddresses(count int, offset int) (*ListAddressesResponse, error) {
 	if count <= 0 {
 		count = 10
 	}
@@ -71,12 +74,13 @@ func (lob *Lob) ListAddresses(count int, offset int) (*ListAddressesResponse, er
 	}
 
 	resp := new(ListAddressesResponse)
-	return resp, Metrics.ListAddresses.Call(func() error {
-		return lob.Get("addresses/", map[string]string{
-			"limit":  strconv.Itoa(count),
-			"offset": strconv.Itoa(offset),
-		}, resp)
-	})
+	if err := lob.get("addresses/", map[string]string{
+		"limit":  strconv.Itoa(count),
+		"offset": strconv.Itoa(offset),
+	}, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
 
 // AddressVerificationRequest validates the given subset of info from an address.
@@ -103,7 +107,7 @@ type ErrorMessage struct {
 }
 
 // VerifyAddress verifies the given address and cleans it up.
-func (lob *Lob) VerifyAddress(address *Address) (*AddressVerificationResponse, error) {
+func (lob *lob) VerifyAddress(address *Address) (*AddressVerificationResponse, error) {
 	req := AddressVerificationRequest{
 		AddressCity:    address.AddressCity,
 		AddressCountry: address.AddressCountry,
@@ -113,7 +117,8 @@ func (lob *Lob) VerifyAddress(address *Address) (*AddressVerificationResponse, e
 		AddressZip:     address.AddressZip,
 	}
 	resp := new(AddressVerificationResponse)
-	return resp, Metrics.VerifyAddress.Call(func() error {
-		return lob.Post("verify", json2form(req), resp)
-	})
+	if err := lob.post("verify", json2form(req), resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
