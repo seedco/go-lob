@@ -1,6 +1,9 @@
 package lob
 
-import "strconv"
+import (
+	"errors"
+	"strconv"
+)
 
 // Address represents an address stored in the Lob's system.
 type Address struct {
@@ -41,18 +44,22 @@ func (lob *lob) GetAddress(id string) (*Address, error) {
 	return resp, nil
 }
 
-type message struct {
-	Message string `json:"message"`
+type deleteAddressResp struct {
+	ID      string `json:"id"`
+	Deleted bool   `json:"deleted"`
 }
 
 // DeleteAddress deletes the given address from Lob's system.
-func (lob *lob) DeleteAddress(id string) (string, error) {
-	resp := new(message)
+func (lob *lob) DeleteAddress(id string) error {
+	resp := new(deleteAddressResp)
 
 	if err := lob.delete("addresses/"+id, resp); err != nil {
-		return "", err
+		return err
 	}
-	return resp.Message, nil
+	if !resp.Deleted {
+		return errors.New("failed to delete address")
+	}
+	return nil
 }
 
 // ListAddressesResponse gives the results for listing all addresses for our account.

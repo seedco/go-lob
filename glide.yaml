@@ -1,0 +1,6 @@
+package: github.com/seedco/go-lob
+import:
+- package: github.com/op/go-logging
+  version: ^1.0.0
+- package: github.com/pborman/uuid
+  version: ^1.1.0

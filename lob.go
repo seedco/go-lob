@@ -38,7 +38,7 @@ type Lob interface {
 	// Addresses
 	CreateAddress(*Address) (*Address, error)
 	GetAddress(string) (*Address, error)
-	DeleteAddress(string) (string, error)
+	DeleteAddress(string) error
 	ListAddresses(int, int) (*ListAddressesResponse, error)
 	VerifyAddress(*Address) (*AddressVerificationResponse, error)
 	// NamedObject
