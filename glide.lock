@@ -1,0 +1,8 @@
+hash: 8a565ee9c264a2916df94774027457ae3990932487102e01f30c4f221a5dfba3
+updated: 2017-08-30T14:47:54.530155574-07:00
+imports:
+- name: github.com/op/go-logging
+  version: b2cb9fa56473e98db8caba80237377e83fe44db5
+- name: github.com/pborman/uuid
+  version: e790cca94e6cc75c7064b1332e63811d4aae1a53
+testImports: []

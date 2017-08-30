@@ -49,8 +49,7 @@ func TestLobAPI(t *testing.T) {
 	}
 	t.Logf("Address list = %+v", addresses)
 
-	message, err := lob.DeleteAddress(address.ID)
-	t.Logf("Message from delete = %s", message)
+	err = lob.DeleteAddress(address.ID)
 	if err != nil {
 		t.Errorf("Error deleting address: %s", err.Error())
 	}
@@ -91,8 +90,7 @@ func TestBankAccounts(t *testing.T) {
 		t.Fatalf("Could not create bank account: %s", err.Error())
 	}
 
-	message, err := lob.DeleteAddress(address.ID)
-	t.Logf("Message from delete = %s", message)
+	err = lob.DeleteAddress(address.ID)
 	if err != nil {
 		t.Errorf("Error deleting address: %s", err.Error())
 	}
@@ -142,8 +140,7 @@ func TestChecks(t *testing.T) {
 	}
 	t.Logf("List checks = %+v", resp)
 
-	message, err := lob.DeleteAddress(address.ID)
-	t.Logf("Message from delete = %s", message)
+	err = lob.DeleteAddress(address.ID)
 	if err != nil {
 		t.Errorf("Error deleting address: %s", err.Error())
 	}

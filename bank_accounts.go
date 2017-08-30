@@ -28,19 +28,21 @@ type CreateBankAccountRequest struct {
 }
 
 // CreateBankAccount creates a new bank account in Lob's system.
-func (lob *Lob) CreateBankAccount(account *CreateBankAccountRequest) (*BankAccount, error) {
+func (l *lob) CreateBankAccount(account *CreateBankAccountRequest) (*BankAccount, error) {
 	resp := new(BankAccount)
-	return resp, Metrics.CreateBankAccount.Call(func() error {
-		return lob.Post("bank_accounts/", json2form(*account), resp)
-	})
+	if err := l.post("bank_accounts/", json2form(*account), resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
 
 // GetBankAccount gets information on a bank account.
-func (lob *Lob) GetBankAccount(id string) (*BankAccount, error) {
+func (l *lob) GetBankAccount(id string) (*BankAccount, error) {
 	resp := new(BankAccount)
-	return resp, Metrics.GetBankAccount.Call(func() error {
-		return lob.Get("bank_accounts/"+id, nil, resp)
-	})
+	if err := l.get("bank_accounts/"+id, nil, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
 
 // ListBankAccountsResponse gives the results for listing all addresses for our account.
@@ -53,7 +55,7 @@ type ListBankAccountsResponse struct {
 }
 
 // ListBankAccounts lists all addresses on this account, paginated.
-func (lob *Lob) ListBankAccounts(count int, offset int) (*ListBankAccountsResponse, error) {
+func (l *lob) ListBankAccounts(count int, offset int) (*ListBankAccountsResponse, error) {
 	if count <= 0 {
 		count = 10
 	}
@@ -62,10 +64,11 @@ func (lob *Lob) ListBankAccounts(count int, offset int) (*ListBankAccountsRespon
 	}
 
 	resp := new(ListBankAccountsResponse)
-	return resp, Metrics.ListBankAccounts.Call(func() error {
-		return lob.Get("bank_accounts", map[string]string{
-			"limit":  strconv.Itoa(count),
-			"offset": strconv.Itoa(offset),
-		}, resp)
-	})
+	if err := l.get("bank_accounts", map[string]string{
+		"limit":  strconv.Itoa(count),
+		"offset": strconv.Itoa(offset),
+	}, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
