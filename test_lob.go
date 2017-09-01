@@ -35,14 +35,13 @@ func (t *fakeLob) CreateCheck(request *CreateCheckRequest) (*Check, error) {
 	if !ok {
 		return nil, errors.New("address not found")
 	}
-
 	check := &Check{
 		ID:                   uuid.New(),
 		Amount:               request.Amount,
 		BankAccount:          bankAccount,
 		CheckNumber:          rand.Int(),
 		ExpectedDeliveryDate: time.Now().Add(3 * 24 * time.Hour).Format("1/2/2006"),
-		SendDate:             time.Now().Add(1 * 24 * time.Hour).Format("1/2/2006"),
+		SendDate:             time.Now().Add(1 * 24 * time.Hour),
 		To:                   address,
 	}
 	t.checks[check.ID] = check
