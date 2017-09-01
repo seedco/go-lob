@@ -1,6 +1,9 @@
 package lob
 
-import "strconv"
+import (
+	"strconv"
+	"time"
+)
 
 // Check represents a printed check in Lob's system.
 type Check struct {
@@ -13,7 +16,7 @@ type Check struct {
 	DateModified         string              `json:"date_modified"`
 	Description          string              `json:"description"`
 	ExpectedDeliveryDate string              `json:"expected_delivery_date"`
-	SendDate             string              `json:"send_date"`
+	SendDate             time.Time           `json:"send_date"`
 	From                 *Address            `json:"from"`
 	ID                   string              `json:"id"`
 	Logo                 *string             `json:"logo"`
