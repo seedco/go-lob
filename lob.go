@@ -40,7 +40,7 @@ type Lob interface {
 	GetAddress(string) (*Address, error)
 	DeleteAddress(string) error
 	ListAddresses(int, int) (*ListAddressesResponse, error)
-	VerifyAddress(*Address) (*AddressVerificationResponse, error)
+	VerifyUSAddress(*Address) (*USAddressVerificationResponse, error)
 	// NamedObject
 	GetStates() (*NamedObjectList, error)
 	GetCountries() (*NamedObjectList, error)
