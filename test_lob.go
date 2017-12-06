@@ -2,6 +2,7 @@ package lob
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
 	"time"
 
@@ -127,21 +128,28 @@ func (t *fakeLob) ListAddresses(count, offset int) (*ListAddressesResponse, erro
 	return resp, nil
 }
 
-func (t *fakeLob) VerifyAddress(address *Address) (*AddressVerificationResponse, error) {
-	resp := new(AddressVerificationResponse)
+func (t *fakeLob) VerifyUSAddress(address *Address) (*USAddressVerificationResponse, error) {
+	resp := new(USAddressVerificationResponse)
 
-	for _, a := range t.addresses {
-		if a.AddressCity == address.AddressCity &&
-			a.AddressCountry == address.AddressCountry &&
-			a.AddressLine1 == address.AddressLine1 &&
-			a.AddressLine2 == address.AddressLine2 &&
-			a.AddressState == address.AddressState &&
-			a.AddressZip == address.AddressZip {
-			resp.Address = *a
-			return resp, nil
+	if address != nil {
+		resp.Id = fmt.Sprintf("us_ver_%v", uuid.New())
+		resp.PrimaryLine = address.AddressLine1
+		resp.SecondaryLine = *address.AddressLine2
+		resp.LastLine = fmt.Sprintf("%v %v %v-%v", address.AddressCity, address.AddressState, address.AddressZip, "0000")
+		resp.Deliverability = "no_match"
+		for _, a := range t.addresses {
+			if a.AddressCity == address.AddressCity &&
+				a.AddressCountry == address.AddressCountry &&
+				a.AddressLine1 == address.AddressLine1 &&
+				a.AddressLine2 == address.AddressLine2 &&
+				a.AddressState == address.AddressState &&
+				a.AddressZip == address.AddressZip {
+				resp.Deliverability = "deliverable"
+				break
+			}
 		}
 	}
-	resp.Errors = []ErrorMessage{ErrorMessage{Message: "could not find address", StatusCode: 400}}
+
 	return resp, nil
 }
 

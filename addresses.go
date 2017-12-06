@@ -91,40 +91,81 @@ func (lob *lob) ListAddresses(count int, offset int) (*ListAddressesResponse, er
 }
 
 // AddressVerificationRequest validates the given subset of info from an address.
-type AddressVerificationRequest struct {
-	AddressCity    *string `json:"address_city"`
-	AddressCountry *string `json:"address_country"`
-	AddressLine1   *string `json:"address_line1"`
-	AddressLine2   *string `json:"address_line2"`
-	AddressState   *string `json:"address_state"`
-	AddressZip     *string `json:"address_zip"`
-	Name           *string `json:"name"`
+type USAddressVerificationRequest struct {
+	Recipient    *string `json:"recipient"`
+	AddressLine1 *string `json:"primary_line"`
+	AddressLine2 *string `json:"secondary_line"`
+	AddressCity  *string `json:"city"`
+	AddressState *string `json:"state"`
+	AddressZip   *string `json:"zip_code"`
 }
 
-// AddressVerificationResponse gives the response from attempting to verify an address.
-type AddressVerificationResponse struct {
-	Address Address        `json:"address"`
-	Errors  []ErrorMessage `json:"errors"`
+// USAddressVerificationResponse gives the response from attempting to verify a US address.
+type USAddressVerificationResponse struct {
+	Id                     string                          `json:"id"`
+	Recipient              string                          `json:"recipient"`
+	PrimaryLine            string                          `json:"primary_line"`
+	SecondaryLine          string                          `json:"secondary_line"`
+	Urbanization           string                          `json:"urbanization,omitempty"`
+	LastLine               string                          `json:"last_line"`
+	Deliverability         string                          `json:"deliverability"`
+	Components             USAddressComponents             `json:"components"`
+	DeliverabilityAnalysis USAddressDeliverabilityAnalysis `json:"deliverability_analysis"`
+	Object                 string                          `json:"object"`
 }
 
-// ErrorMessage gives information about a failure.
-type ErrorMessage struct {
-	Message    string `json:"message"`
-	StatusCode int    `json:"status_code"`
+type USAddressComponents struct {
+	PrimaryNumber             string  `json:"primary_number"`
+	StreetPredirection        string  `json:"street_predirection"`
+	StreetName                string  `json:"street_name"`
+	StreetSuffix              string  `json:"street_suffix"`
+	StreetPostdirection       string  `json:"street_postdirection"`
+	SecondaryDesignator       string  `json:"secondary_designator"`
+	SecondaryNumber           string  `json:"secondary_number"`
+	PmbDesignator             string  `json:"pmb_designator"`
+	PmbNumber                 string  `json:"pmb_number"`
+	ExtraSecondary_designator string  `json:"extra_secondary_designator"`
+	ExtraSecondary_number     string  `json:"extra_secondary_number"`
+	City                      string  `json:"city"`
+	State                     string  `json:"state"`
+	ZipCode                   string  `json:"zip_code"`
+	ZipCodePlus_4             string  `json:"zip_code_plus_4"`
+	ZipCodeType               string  `json:"zip_code_type"`
+	DeliveryPoint_barcode     string  `json:"delivery_point_barcode"`
+	AddressType               string  `json:"address_type"`
+	RecordType                string  `json:"record_type"`
+	DefaultBuildingAddress    bool    `json:"default_building_address"`
+	County                    string  `json:"county"`
+	CountyFips                string  `json:"county_fips"`
+	CarrierRoute              string  `json:"carrier_route"`
+	CarrierRouteType          string  `json:"carrier_route_type"`
+	Latitude                  float64 `json:"latitude"`
+	Longitude                 float64 `json:"longitude"`
 }
 
-// VerifyAddress verifies the given address and cleans it up.
-func (lob *lob) VerifyAddress(address *Address) (*AddressVerificationResponse, error) {
-	req := AddressVerificationRequest{
-		AddressCity:    address.AddressCity,
-		AddressCountry: address.AddressCountry,
-		AddressLine1:   &address.AddressLine1,
-		AddressLine2:   address.AddressLine2,
-		AddressState:   address.AddressState,
-		AddressZip:     address.AddressZip,
+type USAddressDeliverabilityAnalysis struct {
+	DpvConfirmation string   `json:"dpv_confirmation"`
+	DpvCmra         string   `json:"dpv_cmra"`
+	DpvVacant       string   `json:"dpv_vacant"`
+	DpvFootnotes    []string `json:"dpv_footnotes"`
+	EwsMatch        bool     `json:"ews_match"`
+	LacsIndicator   string   `json:"lacs_indicator"`
+	LacsReturnCode  string   `json:"lacs_return_code"`
+	SuiteReturnCode string   `json:"suite_return_code"`
+}
+
+// VerifyUSAddress verifies the given US address and returns the validation results.
+func (lob *lob) VerifyUSAddress(address *Address) (*USAddressVerificationResponse, error) {
+	req := USAddressVerificationRequest{
+		Recipient:    address.Name,
+		AddressLine1: &address.AddressLine1,
+		AddressLine2: address.AddressLine2,
+		AddressCity:  address.AddressCity,
+		AddressState: address.AddressState,
+		AddressZip:   address.AddressZip,
 	}
-	resp := new(AddressVerificationResponse)
-	if err := lob.post("verify", json2form(req), resp); err != nil {
+	resp := new(USAddressVerificationResponse)
+	if err := lob.post("us_verifications", json2form(req), resp); err != nil {
 		return nil, err
 	}
 	return resp, nil

@@ -24,10 +24,10 @@ func nullString(s string) *string {
 	return &s
 }
 
-func TestLobAPI(t *testing.T) {
+func TestAddresses(t *testing.T) {
 	lob := NewLob(BaseAPI, testAPIKey, testUserAgent)
 
-	verify, err := lob.VerifyAddress(testAddress)
+	verify, err := lob.VerifyUSAddress(testAddress)
 	if err != nil {
 		t.Errorf("Error verifying address: %s", err.Error())
 	}
