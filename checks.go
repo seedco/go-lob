@@ -101,7 +101,7 @@ type ListChecksResponse struct {
 	Data        []Check `json:"data"`
 	Object      string  `json:"object"`
 	NextURL     string  `json:"next_url"`
-	PreviousURL string  `json:"next_url"`
+	PreviousURL string  `json:"previous_url"`
 	Count       int     `json:"count"`
 }
 

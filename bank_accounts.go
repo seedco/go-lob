@@ -51,7 +51,7 @@ type ListBankAccountsResponse struct {
 	Data        []BankAccount `json:"data"`
 	Object      string        `json:"object"`
 	NextURL     string        `json:"next_url"`
-	PreviousURL string        `json:"next_url"`
+	PreviousURL string        `json:"previous_url"`
 	Count       int           `json:"count"`
 }
 
