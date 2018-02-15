@@ -49,6 +49,6 @@ func TestFakeLobChecks(t *testing.T) {
 	}
 
 	if retrievedCheck.Amount != check.Amount {
-		t.Errorf("expected check amount to be %d, got %d", check.Amount, retrievedCheck.Amount)
+		t.Errorf("expected check amount to be %v, got %v", check.Amount, retrievedCheck.Amount)
 	}
 }
