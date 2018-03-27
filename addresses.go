@@ -3,6 +3,7 @@ package lob
 import (
 	"errors"
 	"strconv"
+	"strings"
 )
 
 // Address represents an address stored in the Lob's system.
@@ -168,5 +169,28 @@ func (lob *lob) VerifyUSAddress(address *Address) (*USAddressVerificationRespons
 	if err := lob.post("us_verifications", json2form(req), resp); err != nil {
 		return nil, err
 	}
+
+	// in test, fill in components
+	if strings.HasPrefix(lob.APIKey, "test") {
+		streetSplit := strings.Split(address.AddressLine1, " ")
+		if len(streetSplit) > 2 {
+			resp.Components.PrimaryNumber = streetSplit[0]
+			resp.Components.StreetName = streetSplit[1]
+			resp.Components.StreetSuffix = streetSplit[2]
+		}
+		if address.AddressLine2 != nil {
+			resp.Components.SecondaryNumber = *address.AddressLine2
+		}
+		if address.AddressZip != nil {
+			resp.Components.ZipCode = *address.AddressZip
+		}
+		if address.AddressCity != nil {
+			resp.Components.City = *address.AddressCity
+		}
+		if address.AddressState != nil {
+			resp.Components.State = *address.AddressState
+		}
+	}
+
 	return resp, nil
 }
