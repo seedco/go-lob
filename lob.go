@@ -126,6 +126,8 @@ func json2form(v interface{}) map[string]string {
 			for mapkey, mapvalue := range x {
 				params[name+"["+mapkey+"]"] = mapvalue
 			}
+		case *Error:
+			// do not turn into form values. This is for the return response only
 		default:
 			// ignore
 			panic(fmt.Errorf("Unknown field type: " + value.Field(i).Type().String()))

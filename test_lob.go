@@ -9,6 +9,8 @@ import (
 	"github.com/pborman/uuid"
 )
 
+var Non200Error = errors.New("Non-200 Status code returned")
+
 type fakeLob struct {
 	checks       map[string]*Check
 	addresses    map[string]*Address
@@ -88,6 +90,26 @@ func (t *fakeLob) ListChecks(count, offset int) (*ListChecksResponse, error) {
 // Addresses
 
 func (t *fakeLob) CreateAddress(address *Address) (*Address, error) {
+	var message string
+	var status int
+	if address.Name != nil && len(*address.Name) > 40 {
+		message = "name length must be less than or equal to 40 characters long"
+		status = 422
+		address.Error = &Error{
+			Message:    message,
+			StatusCode: status,
+		}
+		return address, Non200Error
+	}
+	if len(address.AddressLine1) > 200 {
+		message = "address_line1 length must be less than or equal to 200 characters long"
+		status = 422
+		address.Error = &Error{
+			Message:    message,
+			StatusCode: status,
+		}
+		return address, Non200Error
+	}
 	if address.ID == "" {
 		address.ID = uuid.New()
 	}

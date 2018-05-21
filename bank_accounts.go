@@ -4,6 +4,7 @@ import "strconv"
 
 // BankAccount represents a bank account in lob's system.
 type BankAccount struct {
+	Error         *Error            `json:"error"`
 	AccountNumber string            `json:"account_number"`
 	BankName      string            `json:"bank_name"`
 	DateCreated   string            `json:"date_created"`
