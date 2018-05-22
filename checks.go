@@ -23,6 +23,7 @@ type Check struct {
 	Logo                 *string             `json:"logo"`
 	MailType             *string             `json:"mail_type"`
 	Memo                 string              `json:"memo"`
+	Message              *string             `json:"message"`
 	Metadata             map[string]string   `json:"metadata"`
 	Name                 string              `json:"name"`
 	Object               string              `json:"object"`
