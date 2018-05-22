@@ -7,6 +7,7 @@ import (
 
 // Check represents a printed check in Lob's system.
 type Check struct {
+	Error                Error               `json:"error"`
 	Amount               float64             `json:"amount"`
 	BankAccount          *BankAccount        `json:"bank_account"`
 	CheckBottom          *string             `json:"check_bottom"`
@@ -68,7 +69,7 @@ type CreateCheckRequest struct {
 func (lob *lob) CreateCheck(req *CreateCheckRequest) (*Check, error) {
 	resp := new(Check)
 	if err := lob.post("checks/", json2form(*req), resp); err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -82,7 +83,7 @@ type CancelCheckResponse struct {
 func (lob *lob) GetCheck(id string) (*Check, error) {
 	resp := new(Check)
 	if err := lob.get("checks/"+id, nil, resp); err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -90,7 +91,7 @@ func (lob *lob) GetCheck(id string) (*Check, error) {
 func (lob *lob) CancelCheck(id string) (*CancelCheckResponse, error) {
 	resp := new(CancelCheckResponse)
 	if err := lob.delete("checks/"+id, &resp); err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }

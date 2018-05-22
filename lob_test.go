@@ -54,6 +54,29 @@ func TestAddresses(t *testing.T) {
 		t.Errorf("Error deleting address: %s", err.Error())
 	}
 }
+func TestAddressError(t *testing.T) {
+	lob := NewLob(BaseAPI, testAPIKey, testUserAgent)
+
+	address, err := lob.CreateAddress(&Address{
+		Name:           nullString("Name that is way too long to be printed on the check so that it will error."),
+		Email:          nullString("lobtest@example.com"),
+		Phone:          nullString("5555555555"),
+		AddressLine1:   "1005 W Burnside St", // Powell's City of Books, the best book store in the world.
+		AddressCity:    nullString("Portland"),
+		AddressState:   nullString("OR"),
+		AddressZip:     nullString("97209"),
+		AddressCountry: nullString("US"),
+	})
+	if err == nil {
+		t.Error("error should not have been nil")
+	}
+	if address.Error.Message == "" {
+		t.Error("Expected human readable error message")
+	}
+	if address.Error.StatusCode != 422 {
+		t.Error("Expected status code to be 422")
+	}
+}
 
 func TestBankAccounts(t *testing.T) {
 	lob := NewLob(BaseAPI, testAPIKey, testUserAgent)

@@ -6,8 +6,14 @@ import (
 	"strings"
 )
 
+type Error struct {
+	Message    string `json:"message,omitempty"`
+	StatusCode int    `json:"status_code,omitempty"`
+}
+
 // Address represents an address stored in the Lob's system.
 type Address struct {
+	Error          *Error            `json:"error"`
 	AddressCity    *string           `json:"address_city"`
 	AddressCountry *string           `json:"address_country"`
 	AddressLine1   string            `json:"address_line1"`
@@ -31,7 +37,7 @@ type Address struct {
 func (lob *lob) CreateAddress(address *Address) (*Address, error) {
 	resp := new(Address)
 	if err := lob.post("addresses", json2form(*address), resp); err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
@@ -40,7 +46,7 @@ func (lob *lob) CreateAddress(address *Address) (*Address, error) {
 func (lob *lob) GetAddress(id string) (*Address, error) {
 	resp := new(Address)
 	if err := lob.get("addresses/"+id, nil, resp); err != nil {
-		return nil, err
+		return resp, err
 	}
 	return resp, nil
 }
