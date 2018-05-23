@@ -7,7 +7,7 @@ import (
 
 // Check represents a printed check in Lob's system.
 type Check struct {
-	Error                Error               `json:"error"`
+	Error                *Error              `json:"error"`
 	Amount               float64             `json:"amount"`
 	BankAccount          *BankAccount        `json:"bank_account"`
 	CheckBottom          *string             `json:"check_bottom"`
