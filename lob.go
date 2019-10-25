@@ -60,7 +60,7 @@ type lob struct {
 // Base URL and API version for Lob.
 const (
 	BaseAPI    = "https://api.lob.com/v1/"
-	APIVersion = "2016-01-19"
+	APIVersion = "2019-06-01"
 )
 
 // NewLob creates an object that can be used to connect to the lob.com API.
