@@ -43,7 +43,7 @@ func TestAddresses(t *testing.T) {
 		t.Errorf("Could not get address: %s", err.Error())
 	}
 
-	addresses, err := lob.ListAddresses(-1, -1)
+	addresses, err := lob.ListAddresses(-1)
 	if err != nil {
 		t.Errorf("Could not list addresses: %s", err.Error())
 	}
@@ -90,6 +90,7 @@ func TestBankAccounts(t *testing.T) {
 		RoutingNumber: "255077370",
 		AccountNumber: "1234",
 		Signatory:     "Lobster Test",
+		AccountType:   "company",
 	})
 
 	if err != nil {
@@ -103,7 +104,7 @@ func TestBankAccounts(t *testing.T) {
 	}
 	t.Logf("Bank account = %+v", bankAccount)
 
-	resp, err := lob.ListBankAccounts(-1, -1)
+	resp, err := lob.ListBankAccounts(-1)
 	if err != nil {
 		t.Errorf("Could not list bank accounts: %s", err.Error())
 	}
@@ -131,6 +132,7 @@ func TestChecks(t *testing.T) {
 		RoutingNumber: "255077370",
 		AccountNumber: "1234",
 		Signatory:     "Lobster Test",
+		AccountType:   "company",
 	})
 
 	if err != nil {
@@ -157,7 +159,7 @@ func TestChecks(t *testing.T) {
 		t.Errorf("Could not get check: %s", err.Error())
 	}
 
-	resp, err := lob.ListChecks(-1, -1)
+	resp, err := lob.ListChecks(-1)
 	if err != nil {
 		t.Errorf("Could not list checks: %s", err.Error())
 	}

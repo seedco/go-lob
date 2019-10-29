@@ -67,13 +67,11 @@ func (t *fakeLob) CancelCheck(id string) (*CancelCheckResponse, error) {
 	}, nil
 }
 
-func (t *fakeLob) ListChecks(count, offset int) (*ListChecksResponse, error) {
+func (t *fakeLob) ListChecks(count int) (*ListChecksResponse, error) {
 	if count <= 0 {
 		count = 10
 	}
-	if offset < 0 {
-		offset = 0
-	}
+
 	resp := new(ListChecksResponse)
 
 	data := make([]Check, len(t.checks))
@@ -82,7 +80,7 @@ func (t *fakeLob) ListChecks(count, offset int) (*ListChecksResponse, error) {
 		data = append(data, *check)
 	}
 
-	resp.Data = data[offset:count]
+	resp.Data = data
 	resp.Count = count
 	return resp, nil
 }
@@ -130,13 +128,11 @@ func (t *fakeLob) DeleteAddress(id string) error {
 	return nil
 }
 
-func (t *fakeLob) ListAddresses(count, offset int) (*ListAddressesResponse, error) {
+func (t *fakeLob) ListAddresses(count int) (*ListAddressesResponse, error) {
 	if count <= 0 {
 		count = 10
 	}
-	if offset < 0 {
-		offset = 0
-	}
+
 	resp := new(ListAddressesResponse)
 
 	data := make([]Address, len(t.addresses))
@@ -145,7 +141,7 @@ func (t *fakeLob) ListAddresses(count, offset int) (*ListAddressesResponse, erro
 		data = append(data, *address)
 	}
 
-	resp.Data = data[offset:count]
+	resp.Data = data
 	resp.Count = count
 	return resp, nil
 }
@@ -208,13 +204,11 @@ func (t *fakeLob) GetBankAccount(id string) (*BankAccount, error) {
 	return bankAccount, nil
 }
 
-func (t *fakeLob) ListBankAccounts(count, offset int) (*ListBankAccountsResponse, error) {
+func (t *fakeLob) ListBankAccounts(count int) (*ListBankAccountsResponse, error) {
 	if count <= 0 {
 		count = 10
 	}
-	if offset < 0 {
-		offset = 0
-	}
+
 	resp := new(ListBankAccountsResponse)
 
 	data := make([]BankAccount, len(t.bankAccounts))
@@ -223,7 +217,7 @@ func (t *fakeLob) ListBankAccounts(count, offset int) (*ListBankAccountsResponse
 		data = append(data, *bankAccount)
 	}
 
-	resp.Data = data[offset:count]
+	resp.Data = data
 	resp.Count = count
 	return resp, nil
 }

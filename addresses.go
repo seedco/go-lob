@@ -79,18 +79,14 @@ type ListAddressesResponse struct {
 }
 
 // ListAddresses lists all addresses on this account, paginated.
-func (lob *lob) ListAddresses(count int, offset int) (*ListAddressesResponse, error) {
+func (lob *lob) ListAddresses(count int) (*ListAddressesResponse, error) {
 	if count <= 0 {
 		count = 10
-	}
-	if offset < 0 {
-		offset = 0
 	}
 
 	resp := new(ListAddressesResponse)
 	if err := lob.get("addresses/", map[string]string{
 		"limit":  strconv.Itoa(count),
-		"offset": strconv.Itoa(offset),
 	}, resp); err != nil {
 		return nil, err
 	}

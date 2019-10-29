@@ -25,6 +25,7 @@ type CreateBankAccountRequest struct {
 	RoutingNumber string            `json:"routing_number"`
 	AccountNumber string            `json:"account_number"`
 	Signatory     string            `json:"signatory"`
+	AccountType   string            `json:"account_type"`
 	Metadata      map[string]string `json:"metadata"`
 }
 
@@ -56,18 +57,14 @@ type ListBankAccountsResponse struct {
 }
 
 // ListBankAccounts lists all addresses on this account, paginated.
-func (l *lob) ListBankAccounts(count int, offset int) (*ListBankAccountsResponse, error) {
+func (l *lob) ListBankAccounts(count int) (*ListBankAccountsResponse, error) {
 	if count <= 0 {
 		count = 10
-	}
-	if offset < 0 {
-		offset = 0
 	}
 
 	resp := new(ListBankAccountsResponse)
 	if err := l.get("bank_accounts", map[string]string{
 		"limit":  strconv.Itoa(count),
-		"offset": strconv.Itoa(offset),
 	}, resp); err != nil {
 		return nil, err
 	}
