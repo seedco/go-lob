@@ -106,17 +106,14 @@ type ListChecksResponse struct {
 }
 
 // ListChecks retrieves information on all checks we've ever made, in reverse chrono order.
-func (lob *lob) ListChecks(count, offset int) (*ListChecksResponse, error) {
+func (lob *lob) ListChecks(count int) (*ListChecksResponse, error) {
 	if count <= 0 {
 		count = 10
 	}
-	if offset < 0 {
-		offset = 0
-	}
+
 	resp := new(ListChecksResponse)
 	if err := lob.get("checks", map[string]string{
 		"limit":  strconv.Itoa(count),
-		"offset": strconv.Itoa(offset),
 	}, resp); err != nil {
 		return nil, err
 	}

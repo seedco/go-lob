@@ -34,12 +34,12 @@ type Lob interface {
 	CreateCheck(*CreateCheckRequest) (*Check, error)
 	GetCheck(string) (*Check, error)
 	CancelCheck(string) (*CancelCheckResponse, error)
-	ListChecks(int, int) (*ListChecksResponse, error)
+	ListChecks(int) (*ListChecksResponse, error)
 	// Addresses
 	CreateAddress(*Address) (*Address, error)
 	GetAddress(string) (*Address, error)
 	DeleteAddress(string) error
-	ListAddresses(int, int) (*ListAddressesResponse, error)
+	ListAddresses(int) (*ListAddressesResponse, error)
 	VerifyUSAddress(*Address) (*USAddressVerificationResponse, error)
 	// NamedObject
 	GetStates() (*NamedObjectList, error)
@@ -47,7 +47,7 @@ type Lob interface {
 	// Bank Accounts
 	CreateBankAccount(*CreateBankAccountRequest) (*BankAccount, error)
 	GetBankAccount(string) (*BankAccount, error)
-	ListBankAccounts(int, int) (*ListBankAccountsResponse, error)
+	ListBankAccounts(int) (*ListBankAccountsResponse, error)
 }
 
 // Lob represents information on how to connect to the lob.com API.
