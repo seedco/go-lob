@@ -41,6 +41,7 @@ type Lob interface {
 	DeleteAddress(string) error
 	ListAddresses(int) (*ListAddressesResponse, error)
 	VerifyUSAddress(*Address) (*USAddressVerificationResponse, error)
+	VerifyUSAddressWithCasing(*Address, AddressVerificationRequestCasing) (*USAddressVerificationResponse, error)
 	// NamedObject
 	GetStates() (*NamedObjectList, error)
 	GetCountries() (*NamedObjectList, error)
@@ -123,6 +124,8 @@ func json2form(v interface{}) map[string]string {
 			}
 		case float64:
 			params[name] = fmt.Sprintf("%.2f", x)
+		case *uint64:
+			params[name] = fmt.Sprintf("%d", *x)
 		case []string:
 			if len(x) > 0 {
 				params[name] = strings.Join(x, " ")

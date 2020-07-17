@@ -2,6 +2,7 @@ package lob
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -86,7 +87,7 @@ func (lob *lob) ListAddresses(count int) (*ListAddressesResponse, error) {
 
 	resp := new(ListAddressesResponse)
 	if err := lob.get("addresses/", map[string]string{
-		"limit":  strconv.Itoa(count),
+		"limit": strconv.Itoa(count),
 	}, resp); err != nil {
 		return nil, err
 	}
@@ -169,6 +170,56 @@ func (lob *lob) VerifyUSAddress(address *Address) (*USAddressVerificationRespons
 	}
 	resp := new(USAddressVerificationResponse)
 	if err := lob.post("us_verifications", json2form(req), resp); err != nil {
+		return nil, err
+	}
+
+	// in test, fill in components
+	if strings.HasPrefix(lob.APIKey, "test") {
+		streetSplit := strings.Split(address.AddressLine1, " ")
+		if len(streetSplit) > 2 {
+			resp.Components.PrimaryNumber = streetSplit[0]
+			resp.Components.StreetName = streetSplit[1]
+			resp.Components.StreetSuffix = streetSplit[2]
+		}
+		if address.AddressLine2 != nil {
+			resp.Components.SecondaryNumber = *address.AddressLine2
+		}
+		if address.AddressZip != nil {
+			resp.Components.ZipCode = *address.AddressZip
+		}
+		if address.AddressCity != nil {
+			resp.Components.City = *address.AddressCity
+		}
+		if address.AddressState != nil {
+			resp.Components.State = *address.AddressState
+		}
+	}
+
+	return resp, nil
+}
+
+//AddressVerificationRequestCasing states how the verified address should be returned
+type AddressVerificationRequestCasing string
+
+//possible values of AddressVerificationRequestCasing
+var (
+	AddressVerificationRequestCasingUpper  AddressVerificationRequestCasing = "upper"
+	AddressVerificationRequestCasingProper AddressVerificationRequestCasing = "proper"
+)
+
+// VerifyUSAddress verifies the given US address and returns the validation results.
+func (lob *lob) VerifyUSAddressWithCasing(address *Address, casing AddressVerificationRequestCasing) (*USAddressVerificationResponse, error) {
+	req := USAddressVerificationRequest{
+		Recipient:    address.Name,
+		AddressLine1: String(address.AddressLine1),
+		AddressLine2: address.AddressLine2,
+		AddressCity:  address.AddressCity,
+		AddressState: address.AddressState,
+		AddressZip:   address.AddressZip,
+	}
+
+	resp := new(USAddressVerificationResponse)
+	if err := lob.post(fmt.Sprintf("us_verifications?case=%s", casing), json2form(req), resp); err != nil {
 		return nil, err
 	}
 
