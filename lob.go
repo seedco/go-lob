@@ -48,6 +48,11 @@ type Lob interface {
 	CreateBankAccount(*CreateBankAccountRequest) (*BankAccount, error)
 	GetBankAccount(string) (*BankAccount, error)
 	ListBankAccounts(int) (*ListBankAccountsResponse, error)
+	// Letters
+	CreateLetter(CreateLetterRequest) (*Letter, error)
+	GetLetter(string) (*Letter, error)
+	ListLetters(int) (*ListLettersResponse, error)
+	CancelLetter(string) (*CancelLetterResponse, error)
 }
 
 // Lob represents information on how to connect to the lob.com API.

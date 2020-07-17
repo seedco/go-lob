@@ -33,36 +33,21 @@ type Check struct {
 	URL                  string              `json:"url"`
 }
 
-// Tracking provides information on shipment tracking for a check.
-type Tracking struct {
-	Carrier        string        `json:"carrier"`
-	Events         []interface{} `json:"events"`
-	ID             string        `json:"id"`
-	Link           *string       `json:"link"`
-	Object         string        `json:"object"`
-	TrackingNumber string        `json:"tracking_number"`
-}
-
-// Mail types that lob supports.
-const (
-	MailTypeUspsFirstClass = "usps_first_class"
-	MailTypeUpsNextDayAir  = "ups_next_day_air"
-)
-
 // CreateCheckRequest specifies options for creating a check.
 type CreateCheckRequest struct {
-	Amount        float64           `json:"amount"`
-	BankAccountID string            `json:"bank_account"`
-	CheckBottom   *string           `json:"check_bottom"` // 400 chars, at bottom (cannot use with message)
-	CheckNumber   *string           `json:"check_number"`
-	Data          map[string]string `json:"data"`
-	Description   *string           `json:"description"`
-	FromAddressID string            `json:"from"`
-	Logo          *string           `json:"logo"` // url or multiform. Square, RGB / CMYK, >= 100x100, transparent bg, PNG or JPEG, and will be grayscaled
-	MailType      *string           `json:"mail_type"`
-	Memo          *string           `json:"memo"`    // 40 chars in memo line
-	Message       *string           `json:"message"` // 400 chars, at top (cannot use with check_bottom)
-	ToAddressID   string            `json:"to"`
+	Amount         float64           `json:"amount"`
+	BankAccountID  string            `json:"bank_account"`
+	CheckBottom    *string           `json:"check_bottom"` // 400 chars, at bottom (cannot use with message)
+	CheckNumber    *string           `json:"check_number"`
+	Data           map[string]string `json:"data"`
+	Description    *string           `json:"description"`
+	FromAddressID  string            `json:"from"`
+	Logo           *string           `json:"logo"` // url or multiform. Square, RGB / CMYK, >= 100x100, transparent bg, PNG or JPEG, and will be grayscaled
+	MailType       *string           `json:"mail_type"`
+	Memo           *string           `json:"memo"`    // 40 chars in memo line
+	Message        *string           `json:"message"` // 400 chars, at top (cannot use with check_bottom)
+	ToAddressID    string            `json:"to"`
+	BillingGroupID *string           `json:"billing_group_id"`
 }
 
 // CreateCheck requests for a new check to be printed and mailed.
@@ -113,7 +98,7 @@ func (lob *lob) ListChecks(count int) (*ListChecksResponse, error) {
 
 	resp := new(ListChecksResponse)
 	if err := lob.get("checks", map[string]string{
-		"limit":  strconv.Itoa(count),
+		"limit": strconv.Itoa(count),
 	}, resp); err != nil {
 		return nil, err
 	}
