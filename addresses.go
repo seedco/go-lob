@@ -106,18 +106,31 @@ type USAddressVerificationRequest struct {
 
 // USAddressVerificationResponse gives the response from attempting to verify a US address.
 type USAddressVerificationResponse struct {
-	Id                     string                          `json:"id"`
-	Recipient              string                          `json:"recipient"`
-	PrimaryLine            string                          `json:"primary_line"`
-	SecondaryLine          string                          `json:"secondary_line"`
-	Urbanization           string                          `json:"urbanization,omitempty"`
-	LastLine               string                          `json:"last_line"`
-	Deliverability         string                          `json:"deliverability"`
-	Components             USAddressComponents             `json:"components"`
-	DeliverabilityAnalysis USAddressDeliverabilityAnalysis `json:"deliverability_analysis"`
-	Object                 string                          `json:"object"`
+	Id                     string                              `json:"id"`
+	Recipient              string                              `json:"recipient"`
+	PrimaryLine            string                              `json:"primary_line"`
+	SecondaryLine          string                              `json:"secondary_line"`
+	Urbanization           string                              `json:"urbanization,omitempty"`
+	LastLine               string                              `json:"last_line"`
+	Deliverability         USAddressVerificationDeliverability `json:"deliverability"`
+	Components             USAddressComponents                 `json:"components"`
+	DeliverabilityAnalysis USAddressDeliverabilityAnalysis     `json:"deliverability_analysis"`
+	Object                 string                              `json:"object"`
 }
 
+//USAddressVerificationDeliverability is the type for the deliverability of an address verified
+type USAddressVerificationDeliverability string
+
+//list of USAddressVerificationDeliverability values
+var (
+	USAddressVerificationDeliverabilityDeliverable     USAddressVerificationDeliverability = "deliverable"
+	USAddressVerificationDeliverabilityUnnecessaryUnit USAddressVerificationDeliverability = "deliverable_unnecessary_unit"
+	USAddressVerificationDeliverabilityIncorrectUnit   USAddressVerificationDeliverability = "deliverable_incorrect_unit"
+	USAddressVerificationDeliverabilitydMissingUnit    USAddressVerificationDeliverability = "deliverable_missing_unit"
+	USAddressVerificationDeliverabilityUndeliverable   USAddressVerificationDeliverability = "undeliverable"
+)
+
+//USAddressComponents are the components which make up a US address
 type USAddressComponents struct {
 	PrimaryNumber             string  `json:"primary_number"`
 	StreetPredirection        string  `json:"street_predirection"`
