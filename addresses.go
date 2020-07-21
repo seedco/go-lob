@@ -178,7 +178,7 @@ func (lob *lob) VerifyUSAddress(address *Address) (*USAddressVerificationRespons
 	}
 
 	// in test, fill in components
-	if strings.HasPrefix(lob.APIKey, "test") && resp.SecondaryLine != testFillInLine2Required {
+	if strings.HasPrefix(lob.APIKey, "test") && resp.SecondaryLine == testFillInLine2Required {
 		streetSplit := strings.Split(address.AddressLine1, " ")
 		if len(streetSplit) > 2 {
 			resp.Components.PrimaryNumber = streetSplit[0]
@@ -228,7 +228,7 @@ func (lob *lob) VerifyUSAddressWithCasing(address *Address, casing AddressVerifi
 	}
 
 	// in test, fill in components
-	if strings.HasPrefix(lob.APIKey, "test") && resp.SecondaryLine != testFillInLine2Required {
+	if strings.HasPrefix(lob.APIKey, "test") && resp.SecondaryLine == testFillInLine2Required {
 		streetSplit := strings.Split(address.AddressLine1, " ")
 		if len(streetSplit) > 2 {
 			resp.Components.PrimaryNumber = streetSplit[0]
