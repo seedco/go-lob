@@ -158,6 +158,10 @@ type USAddressDeliverabilityAnalysis struct {
 	SuiteReturnCode string   `json:"suite_return_code"`
 }
 
+// with special codes you can get a proper response back in test mode; this magic secondary line means we didn't
+// request it with a special code so fallback to the old behavior
+const testFillInLine2Required = "See Https://www.lob.com/docs#us-verification-test-environment For More Info"
+
 // VerifyUSAddress verifies the given US address and returns the validation results.
 func (lob *lob) VerifyUSAddress(address *Address) (*USAddressVerificationResponse, error) {
 	req := USAddressVerificationRequest{
@@ -174,7 +178,7 @@ func (lob *lob) VerifyUSAddress(address *Address) (*USAddressVerificationRespons
 	}
 
 	// in test, fill in components
-	if strings.HasPrefix(lob.APIKey, "test") {
+	if strings.HasPrefix(lob.APIKey, "test") && resp.SecondaryLine != testFillInLine2Required {
 		streetSplit := strings.Split(address.AddressLine1, " ")
 		if len(streetSplit) > 2 {
 			resp.Components.PrimaryNumber = streetSplit[0]
@@ -224,7 +228,7 @@ func (lob *lob) VerifyUSAddressWithCasing(address *Address, casing AddressVerifi
 	}
 
 	// in test, fill in components
-	if strings.HasPrefix(lob.APIKey, "test") {
+	if strings.HasPrefix(lob.APIKey, "test") && resp.SecondaryLine != testFillInLine2Required {
 		streetSplit := strings.Split(address.AddressLine1, " ")
 		if len(streetSplit) > 2 {
 			resp.Components.PrimaryNumber = streetSplit[0]
