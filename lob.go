@@ -12,6 +12,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/op/go-logging"
 )
@@ -118,6 +119,8 @@ func json2form(v interface{}) map[string]string {
 			if x != nil {
 				params[name] = fmt.Sprintf("%v", *x)
 			}
+		case bool:
+			params[name] = fmt.Sprintf("%v", x)
 		case int64:
 			if x != 0 {
 				params[name] = strconv.FormatInt(x, 10)
@@ -125,7 +128,9 @@ func json2form(v interface{}) map[string]string {
 		case float64:
 			params[name] = fmt.Sprintf("%.2f", x)
 		case *uint64:
-			params[name] = fmt.Sprintf("%d", *x)
+			if x != nil {
+				params[name] = fmt.Sprintf("%d", *x)
+			}
 		case []string:
 			if len(x) > 0 {
 				params[name] = strings.Join(x, " ")
@@ -133,6 +138,26 @@ func json2form(v interface{}) map[string]string {
 		case map[string]string:
 			for mapkey, mapvalue := range x {
 				params[name+"["+mapkey+"]"] = mapvalue
+			}
+		case *time.Time:
+			if x != nil {
+				params[name] = x.Format(time.RFC3339)
+			}
+		case Address:
+			for k, v := range json2form(x) {
+				params[name+"["+k+"]"] = v
+			}
+		case LetterAddressPlacement:
+			params[name] = fmt.Sprintf("%s", x)
+		case *LetterExtraService:
+			if x != nil {
+				params[name] = fmt.Sprintf("%s", *x)
+			}
+		case *CustomEnvelope:
+			if x != nil {
+				for k, v := range json2form(x) {
+					params[name+"["+k+"]"] = v
+				}
 			}
 		case *Error:
 			// do not turn into form values. This is for the return response only
