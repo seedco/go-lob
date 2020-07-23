@@ -30,7 +30,7 @@ type Letter struct {
 	TrackingNumber       *string                `json:"tracking_number"`
 	TrackingEvents       []TrackingEvent        `json:"tracking_events"`
 	Thumbnails           []LetterThumbnail      `json:"thumbnails"`
-	ExpectedDeliveryDate time.Time              `json:"expected_delivery_date"`
+	ExpectedDeliveryDate string                 `json:"expected_delivery_date"`
 	DateCreated          time.Time              `json:"date_created"`
 	DateModified         time.Time              `json:"date_modified"`
 	SendDate             time.Time              `json:"send_date"`
