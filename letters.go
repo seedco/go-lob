@@ -10,6 +10,7 @@ import (
 // Letter represents a letter in lob's system
 type Letter struct {
 	Error                *Error                 `json:"error"`
+	ID                   string                 `json:"id"`
 	Description          *string                `json:"description"`
 	Metadata             map[string]string      `json:"metadata"`
 	To                   *Address               `json:"to"`
