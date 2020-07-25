@@ -52,7 +52,10 @@ func hasValidTimestampWithTolerance(timestampHeader string, tolerance time.Durat
 		return ErrInvalidHeader
 	}
 
-	if time.Since(time.Unix(t, 0)) > tolerance {
+	// lob.com sends the epoch time with milliseconds
+	sentTime := time.Unix(0, t*int64(time.Millisecond))
+
+	if time.Since(sentTime) > tolerance {
 		return ErrTooOld
 	}
 
