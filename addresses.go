@@ -2,6 +2,7 @@ package lob
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -86,7 +87,7 @@ func (lob *lob) ListAddresses(count int) (*ListAddressesResponse, error) {
 
 	resp := new(ListAddressesResponse)
 	if err := lob.get("addresses/", map[string]string{
-		"limit":  strconv.Itoa(count),
+		"limit": strconv.Itoa(count),
 	}, resp); err != nil {
 		return nil, err
 	}
@@ -105,18 +106,31 @@ type USAddressVerificationRequest struct {
 
 // USAddressVerificationResponse gives the response from attempting to verify a US address.
 type USAddressVerificationResponse struct {
-	Id                     string                          `json:"id"`
-	Recipient              string                          `json:"recipient"`
-	PrimaryLine            string                          `json:"primary_line"`
-	SecondaryLine          string                          `json:"secondary_line"`
-	Urbanization           string                          `json:"urbanization,omitempty"`
-	LastLine               string                          `json:"last_line"`
-	Deliverability         string                          `json:"deliverability"`
-	Components             USAddressComponents             `json:"components"`
-	DeliverabilityAnalysis USAddressDeliverabilityAnalysis `json:"deliverability_analysis"`
-	Object                 string                          `json:"object"`
+	Id                     string                              `json:"id"`
+	Recipient              string                              `json:"recipient"`
+	PrimaryLine            string                              `json:"primary_line"`
+	SecondaryLine          string                              `json:"secondary_line"`
+	Urbanization           string                              `json:"urbanization,omitempty"`
+	LastLine               string                              `json:"last_line"`
+	Deliverability         USAddressVerificationDeliverability `json:"deliverability"`
+	Components             USAddressComponents                 `json:"components"`
+	DeliverabilityAnalysis USAddressDeliverabilityAnalysis     `json:"deliverability_analysis"`
+	Object                 string                              `json:"object"`
 }
 
+//USAddressVerificationDeliverability is the type for the deliverability of an address verified
+type USAddressVerificationDeliverability string
+
+//list of USAddressVerificationDeliverability values
+var (
+	USAddressVerificationDeliverabilityDeliverable     USAddressVerificationDeliverability = "deliverable"
+	USAddressVerificationDeliverabilityUnnecessaryUnit USAddressVerificationDeliverability = "deliverable_unnecessary_unit"
+	USAddressVerificationDeliverabilityIncorrectUnit   USAddressVerificationDeliverability = "deliverable_incorrect_unit"
+	USAddressVerificationDeliverabilitydMissingUnit    USAddressVerificationDeliverability = "deliverable_missing_unit"
+	USAddressVerificationDeliverabilityUndeliverable   USAddressVerificationDeliverability = "undeliverable"
+)
+
+//USAddressComponents are the components which make up a US address
 type USAddressComponents struct {
 	PrimaryNumber             string  `json:"primary_number"`
 	StreetPredirection        string  `json:"street_predirection"`
@@ -157,6 +171,10 @@ type USAddressDeliverabilityAnalysis struct {
 	SuiteReturnCode string   `json:"suite_return_code"`
 }
 
+// with special codes you can get a proper response back in test mode; this magic secondary line means we didn't
+// request it with a special code so fallback to the old behavior
+const testFillInLine2Required = "See Https://www.lob.com/docs#us-verification-test-environment For More Info"
+
 // VerifyUSAddress verifies the given US address and returns the validation results.
 func (lob *lob) VerifyUSAddress(address *Address) (*USAddressVerificationResponse, error) {
 	req := USAddressVerificationRequest{
@@ -173,7 +191,57 @@ func (lob *lob) VerifyUSAddress(address *Address) (*USAddressVerificationRespons
 	}
 
 	// in test, fill in components
-	if strings.HasPrefix(lob.APIKey, "test") {
+	if strings.HasPrefix(lob.APIKey, "test") && resp.SecondaryLine == testFillInLine2Required {
+		streetSplit := strings.Split(address.AddressLine1, " ")
+		if len(streetSplit) > 2 {
+			resp.Components.PrimaryNumber = streetSplit[0]
+			resp.Components.StreetName = streetSplit[1]
+			resp.Components.StreetSuffix = streetSplit[2]
+		}
+		if address.AddressLine2 != nil {
+			resp.Components.SecondaryNumber = *address.AddressLine2
+		}
+		if address.AddressZip != nil {
+			resp.Components.ZipCode = *address.AddressZip
+		}
+		if address.AddressCity != nil {
+			resp.Components.City = *address.AddressCity
+		}
+		if address.AddressState != nil {
+			resp.Components.State = *address.AddressState
+		}
+	}
+
+	return resp, nil
+}
+
+//AddressVerificationRequestCasing states how the verified address should be returned
+type AddressVerificationRequestCasing string
+
+//possible values of AddressVerificationRequestCasing
+var (
+	AddressVerificationRequestCasingUpper  AddressVerificationRequestCasing = "upper"
+	AddressVerificationRequestCasingProper AddressVerificationRequestCasing = "proper"
+)
+
+// VerifyUSAddress verifies the given US address and returns the validation results.
+func (lob *lob) VerifyUSAddressWithCasing(address *Address, casing AddressVerificationRequestCasing) (*USAddressVerificationResponse, error) {
+	req := USAddressVerificationRequest{
+		Recipient:    address.Name,
+		AddressLine1: String(address.AddressLine1),
+		AddressLine2: address.AddressLine2,
+		AddressCity:  address.AddressCity,
+		AddressState: address.AddressState,
+		AddressZip:   address.AddressZip,
+	}
+
+	resp := new(USAddressVerificationResponse)
+	if err := lob.post(fmt.Sprintf("us_verifications?case=%s", casing), json2form(req), resp); err != nil {
+		return nil, err
+	}
+
+	// in test, fill in components
+	if strings.HasPrefix(lob.APIKey, "test") && resp.SecondaryLine == testFillInLine2Required {
 		streetSplit := strings.Split(address.AddressLine1, " ")
 		if len(streetSplit) > 2 {
 			resp.Components.PrimaryNumber = streetSplit[0]

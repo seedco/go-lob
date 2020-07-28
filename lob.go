@@ -12,6 +12,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/op/go-logging"
 )
@@ -41,6 +42,7 @@ type Lob interface {
 	DeleteAddress(string) error
 	ListAddresses(int) (*ListAddressesResponse, error)
 	VerifyUSAddress(*Address) (*USAddressVerificationResponse, error)
+	VerifyUSAddressWithCasing(*Address, AddressVerificationRequestCasing) (*USAddressVerificationResponse, error)
 	// NamedObject
 	GetStates() (*NamedObjectList, error)
 	GetCountries() (*NamedObjectList, error)
@@ -48,6 +50,11 @@ type Lob interface {
 	CreateBankAccount(*CreateBankAccountRequest) (*BankAccount, error)
 	GetBankAccount(string) (*BankAccount, error)
 	ListBankAccounts(int) (*ListBankAccountsResponse, error)
+	// Letters
+	CreateLetter(CreateLetterRequest) (*Letter, error)
+	GetLetter(string) (*Letter, error)
+	ListLetters(int) (*ListLettersResponse, error)
+	CancelLetter(string) (*CancelLetterResponse, error)
 }
 
 // Lob represents information on how to connect to the lob.com API.
@@ -60,7 +67,7 @@ type lob struct {
 // Base URL and API version for Lob.
 const (
 	BaseAPI    = "https://api.lob.com/v1/"
-	APIVersion = "2019-06-01"
+	APIVersion = "2020-02-11"
 )
 
 // NewLob creates an object that can be used to connect to the lob.com API.
@@ -112,12 +119,18 @@ func json2form(v interface{}) map[string]string {
 			if x != nil {
 				params[name] = fmt.Sprintf("%v", *x)
 			}
+		case bool:
+			params[name] = fmt.Sprintf("%v", x)
 		case int64:
 			if x != 0 {
 				params[name] = strconv.FormatInt(x, 10)
 			}
 		case float64:
 			params[name] = fmt.Sprintf("%.2f", x)
+		case *uint64:
+			if x != nil {
+				params[name] = fmt.Sprintf("%d", *x)
+			}
 		case []string:
 			if len(x) > 0 {
 				params[name] = strings.Join(x, " ")
@@ -125,6 +138,26 @@ func json2form(v interface{}) map[string]string {
 		case map[string]string:
 			for mapkey, mapvalue := range x {
 				params[name+"["+mapkey+"]"] = mapvalue
+			}
+		case *time.Time:
+			if x != nil {
+				params[name] = x.Format(time.RFC3339)
+			}
+		case Address:
+			for k, v := range json2form(x) {
+				params[name+"["+k+"]"] = v
+			}
+		case LetterAddressPlacement:
+			params[name] = fmt.Sprintf("%s", x)
+		case *LetterExtraService:
+			if x != nil {
+				params[name] = fmt.Sprintf("%s", *x)
+			}
+		case *CustomEnvelope:
+			if x != nil {
+				for k, v := range json2form(x) {
+					params[name+"["+k+"]"] = v
+				}
 			}
 		case *Error:
 			// do not turn into form values. This is for the return response only
